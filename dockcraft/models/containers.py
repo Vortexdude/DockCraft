@@ -7,7 +7,6 @@ class Container(Model):
     def prepare_model(cls, data, client=None):
         if client:
             data['client'] = client
-            cls.client = client
 
         return cls.model_validate(data)
 
