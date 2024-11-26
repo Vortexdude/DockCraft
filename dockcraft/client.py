@@ -8,6 +8,9 @@ class DockerClient:
 
     @classmethod
     def from_env(cls, *args, **kwargs):
+        if "logger" in kwargs:
+            cls.logger = kwargs['logger']
+
         return cls(*args, **kwargs)
 
     @property

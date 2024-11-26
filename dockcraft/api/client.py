@@ -3,6 +3,13 @@ from .containers import ContainerApiMixin
 
 
 class APIClient(HttpReq, ContainerApiMixin):
+    def __init__(self, *args, **kwargs):
+        if "logger" in kwargs:
+            self.logger = kwargs['logger']
+
+        HttpReq.__init__(self, *args, **kwargs)
+        ContainerApiMixin.__init__(self)
+
 
     def get(self, url, /, *args, **kwargs):
         return self._get(url, *args, **kwargs)

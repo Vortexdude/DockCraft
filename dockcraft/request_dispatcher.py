@@ -3,7 +3,7 @@ import json
 
 
 class BaseHttpReq(object):
-    def __init__(self, host: None | str =None, socket_file: None | str = None):
+    def __init__(self, host: None | str = None, socket_file: None | str = None, *args, **kwargs):
         self._line_end = "\r\n"
         self.host = host or "localhost"
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
