@@ -62,26 +62,26 @@ def logging_dec(level="debug"):
         @wraps(function)
         def wrapper(self, *args, **kwargs):
             try:
-                self.logger = self.logger
+                logger = self.logger
             except AttributeError:
-                self.logger = self.client.api.logger
+                logger = self.client.api.logger
 
-            # self.logger = self.client.api.logger.debug("from the api itself")
+            message = "Invoking "
 
-            if level == "debug":
-                self.logger.debug(f"Invoking function '{function.__name__}' with args {kwargs}")
-                if function.__doc__:
-                    self.logger.debug(function.__doc__)
+            if "." in function.__qualname__:
+                message += f"method '{function.__qualname__}' "
+            else:
+                message += f"function '{function.__qualname__}' "
 
-            elif level == "info":
-                self.logger.info(f"Invoking function '{function.__name__}' with args {kwargs}")
-                if function.__doc__:
-                    self.logger.info(function.__doc__)
+            logger.info(message)
 
-            elif level == "warning":
-                self.logger.warning(f"Invoking function '{function.__name__}' with args {kwargs}")
-                if function.__doc__:
-                    self.logger.warning(function.__doc__)
+            if logger.getEffectiveLevel() == 10:  # check for debug or info
+                pass
+
+            message += f"with args {args} and kwargs {kwargs}"
+
+            logger.debug(message)
+            logger.debug(function.__doc__) if function.__doc__ else None
 
             result = function(self, *args, **kwargs)
             return result

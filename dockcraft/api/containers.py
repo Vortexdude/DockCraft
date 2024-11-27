@@ -18,7 +18,7 @@ class BaseApiMixin(object):
 
 class ContainerApiMixin(BaseApiMixin):
 
-    @logging_dec("debug")
+    @logging_dec()
     def containers(self, all_containers=True):
         """fetching all the containers using /containers/json endpoint"""
 
@@ -32,7 +32,7 @@ class ContainerApiMixin(BaseApiMixin):
 
         return response['body']
 
-    @logging_dec("debug")
+    @logging_dec()
     def create_container(self, image, command=None, **kwargs):
         params = {}
         if "name" in kwargs:
@@ -46,7 +46,7 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise Exception(response['body'])
 
-    @logging_dec("debug")
+    @logging_dec()
     def stop_container(self, container_id):
         endpoint = f"/containers/{container_id}/stop"
         response = self.post(endpoint)
@@ -62,7 +62,7 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging_dec("debug")
+    @logging_dec()
     def restart_container(self, container_id):
         endpoint = f"/containers/{container_id}/restart"
         response = self.post(endpoint)
@@ -75,7 +75,7 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging_dec("debug")
+    @logging_dec()
     def delete_container(self, container_id):
         endpoint = f"/containers/{container_id}"
         response = self.delete(endpoint)
@@ -95,7 +95,7 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging_dec("debug")
+    @logging_dec()
     def rename_container(self, container_id, name):
         endpoint = f"/containers/{container_id}/rename"
         params = {"name": name}
