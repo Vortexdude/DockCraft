@@ -14,6 +14,11 @@ class ContainerCollection(Collection):
         container = self.client.api.get_container(container_id)
         return self.model.prepare_model(container, client=self.client)
 
+    def create(self, image, command=None, **kwargs):
+        container = self.client.api.create_container(image, command=command, **kwargs)
+        return self.model.prepare_model(container)
+
+
     def remove(self):
         pass
 

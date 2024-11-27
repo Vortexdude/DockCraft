@@ -53,3 +53,8 @@ class BadParameters(BaseException):
     def __init__(self):
         self.message = "Bad Params"
         super().__init__()
+
+class ContainerAlreadyExists(BaseException):
+    def __init__(self, message):
+        self.message = message
+        super().__init__()

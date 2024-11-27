@@ -9,4 +9,6 @@ if __name__ == "__main__":
 
     containers = cd.containers.list(all_containers=True)
     for container in containers:
-        print(container.rename("Sandbox_ready"))
+        container.start()
+    # res = cd.containers.create("python", name="anything", command="sleep infinity")
+    # print(res)
