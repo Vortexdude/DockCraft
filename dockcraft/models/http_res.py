@@ -16,7 +16,6 @@ class HttpRes(BaseModel):
     @classmethod
     def format(cls, data):
         _tmp = {}
-        print(f"{data=}")
         for key, value in data.items():
             key = key.replace("-", "_").lower()
             if isinstance(value, dict):
