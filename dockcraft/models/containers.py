@@ -1,5 +1,6 @@
 from dockcraft.resources import Model
 from dockcraft.exceptions import ContainerNameAlreadyUsed, ContainerNotFoundError
+from dockcraft.utils import logging_dec
 
 
 class Container(Model):
@@ -11,15 +12,19 @@ class Container(Model):
 
         return cls.model_validate(data)
 
+    @logging_dec("debug")
     def stop(self):
         return self.client.api.stop_container(self.Id)
 
+    @logging_dec("debug")
     def restart(self):
         return self.client.api.restart_container(self.Id)
 
+    @logging_dec("debug")
     def delete(self):
         return self.client.api.delete_container(self.Id)
 
+    @logging_dec("debug")
     def rename(self, name):
         try:
             self.client.api.rename_container(self.Id, name=name)
@@ -30,12 +35,14 @@ class Container(Model):
 
         return self.model_dump(mode='json', exclude={"client"})
 
-
+    @logging_dec("debug")
     def __str__(self) -> str:
         return f"<{self.__class__.__name__}: {self.short_id}>"
 
+    @logging_dec("debug")
     def __call__(self, *args, **kwargs):
         return f"You should not call the {self.__class__.__name__} direcly"
 
+    @logging_dec("debug")
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.short_id}>"

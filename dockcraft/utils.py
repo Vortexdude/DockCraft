@@ -1,3 +1,4 @@
+from functools import wraps
 import logging
 
 class CustomFormatter(logging.Formatter):
@@ -54,3 +55,35 @@ class CustomLogger:
 
     def get_logger(self):
         return self.logger
+
+
+def logging_dec(level="debug"):
+    def decorator(function):
+        @wraps(function)
+        def wrapper(self, *args, **kwargs):
+            try:
+                self.logger = self.logger
+            except AttributeError:
+                self.logger = self.client.api.logger
+
+            # self.logger = self.client.api.logger.debug("from the api itself")
+
+            if level == "debug":
+                self.logger.debug(f"Invoking function '{function.__name__}' with args {kwargs}")
+                if function.__doc__:
+                    self.logger.debug(function.__doc__)
+
+            elif level == "info":
+                self.logger.info(f"Invoking function '{function.__name__}' with args {kwargs}")
+                if function.__doc__:
+                    self.logger.info(function.__doc__)
+
+            elif level == "warning":
+                self.logger.warning(f"Invoking function '{function.__name__}' with args {kwargs}")
+                if function.__doc__:
+                    self.logger.warning(function.__doc__)
+
+            result = function(self, *args, **kwargs)
+            return result
+        return wrapper
+    return decorator

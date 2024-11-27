@@ -1,32 +1,7 @@
+from ..utils import logging_dec
 from dockcraft.exceptions import (ContainerNotFoundError,
     InternalSeverError, ContainerAlreadyStopped,
     ContainerNameAlreadyUsed, BadParameters, ContainerDeletionError)
-
-from functools import wraps
-
-
-def logging(level="debug"):
-    def decorator(function):
-        @wraps(function)
-        def wrapper(self, *args, **kwargs):
-            if level == "debug":
-                if function.__doc__:
-                    self.logger.debug(f"Invoking function '{function.__name__}' with args {kwargs}")
-                    self.logger.debug(function.__doc__)
-
-            elif level == "info":
-                if function.__doc__:
-                    self.logger.info(function.__doc__)
-
-            elif level == "warning":
-                if function.__doc__:
-                    self.logger.warning(function.__doc__)
-
-            result = function(self, *args, **kwargs)
-            return result
-        return wrapper
-    return decorator
-
 
 
 class BaseApiMixin(object):
@@ -43,7 +18,7 @@ class BaseApiMixin(object):
 
 class ContainerApiMixin(BaseApiMixin):
 
-    @logging("debug")
+    @logging_dec("debug")
     def containers(self, all_containers=True):
         """fetching all the containers using /containers/json endpoint"""
 
@@ -57,7 +32,7 @@ class ContainerApiMixin(BaseApiMixin):
 
         return response['body']
 
-    @logging("debug")
+    @logging_dec("debug")
     def create_container(self, image, command=None, **kwargs):
         params = {}
         if "name" in kwargs:
@@ -71,7 +46,7 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise Exception(response['body'])
 
-    @logging("debug")
+    @logging_dec("debug")
     def stop_container(self, container_id):
         endpoint = f"/containers/{container_id}/stop"
         response = self.post(endpoint)
@@ -87,7 +62,7 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging("debug")
+    @logging_dec("debug")
     def restart_container(self, container_id):
         endpoint = f"/containers/{container_id}/restart"
         response = self.post(endpoint)
@@ -100,7 +75,7 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging("debug")
+    @logging_dec("debug")
     def delete_container(self, container_id):
         endpoint = f"/containers/{container_id}"
         response = self.delete(endpoint)
@@ -118,9 +93,9 @@ class ContainerApiMixin(BaseApiMixin):
             raise ContainerDeletionError(container_id)
 
         else:
-            raise ContainerNotFoundError(container_id)
+            raise InternalSeverError()
 
-    @logging("debug")
+    @logging_dec("debug")
     def rename_container(self, container_id, name):
         endpoint = f"/containers/{container_id}/rename"
         params = {"name": name}

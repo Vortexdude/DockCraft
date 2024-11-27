@@ -1,6 +1,10 @@
+from .settings import logger
+
+
 class BaseException(Exception):
     message = None
     def __init__(self):
+        logger.warning(self.message)
         super().__init__(self.message)
 
 
@@ -30,7 +34,7 @@ class ContainerAlreadyStopped(ContainerException):
 
 
 class ContainerNameAlreadyUsed(ContainerException):
-    message = "name {} already in use"
+    message = "Container '{}', name already in use"
     def __init__(self, container):
         super().__init__(container)
 

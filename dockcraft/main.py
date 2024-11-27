@@ -9,4 +9,4 @@ if __name__ == "__main__":
 
     containers = cd.containers.list(all_containers=True)
     for container in containers:
-        print(container)
+        print(container.rename("Sandbox_ready"))
