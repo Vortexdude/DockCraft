@@ -1,3 +1,3 @@
 # DockCraft
 Emphasizing crafting Docker solutions.
-:> Branch development
+: Branch development
