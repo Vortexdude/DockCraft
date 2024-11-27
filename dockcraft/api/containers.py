@@ -38,6 +38,7 @@ class ContainerApiMixin(BaseApiMixin):
 
     @logging_dec()
     def create_container(self, image, name=None, command=None, hostname=None, user=None, platform=None):
+        f"""creating the container with given args"""
         params = {}
         docker_config = {}
         if name:
@@ -74,6 +75,7 @@ class ContainerApiMixin(BaseApiMixin):
         endpoint = f"/containers/{container_id}/start"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
+            self.logger.debug("container started successfully")
             return response.status_code # no need to do this
 
         elif response.status_code == 304:
