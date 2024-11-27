@@ -1,5 +1,7 @@
 from dockcraft.resources import Model
-from dockcraft.exceptions import ContainerNameAlreadyUsed, ContainerNotFoundError
+from dockcraft.exceptions import (ContainerNameAlreadyUsed, BadParameters, ContainerDeletionError,
+                                  ContainerAlreadyStopped,ContainerNotFoundError, ContainerAlreadyStarted)
+
 from dockcraft.utils import logging_dec
 
 
@@ -12,28 +14,37 @@ class Container(Model):
 
         return cls.model_validate(data)
 
+    def _perform_api_action(self, action, *args, **kwargs):
+        try:
+            action(*args, **kwargs)
+        except (ContainerAlreadyStarted, ContainerAlreadyStopped, ContainerNameAlreadyUsed, BadParameters) as e:
+            return e.message
+        except (ContainerNotFoundError, ContainerDeletionError) as e:
+            raise e
+        except Exception as e:
+            raise e
+        return self.model_dump(mode='json', exclude={"client"})
+
+    @logging_dec()
+    def start(self):
+        return self._perform_api_action(self.client.api.start_container, self.Id)
+
     @logging_dec()
     def stop(self):
-        return self.client.api.stop_container(self.Id)
+        return self._perform_api_action(self.client.api.stop_container, self.Id)
 
     @logging_dec()
     def restart(self):
-        return self.client.api.restart_container(self.Id)
+        return self._perform_api_action(self.client.api.restart_container, self.Id)
 
     @logging_dec()
     def delete(self):
-        return self.client.api.delete_container(self.Id)
+        return self._perform_api_action(self.client.api.delete_container, self.Id)
 
     @logging_dec()
     def rename(self, name):
-        try:
-            self.client.api.rename_container(self.Id, name=name)
-        except ContainerNameAlreadyUsed as e:
-            return e.message
-        except ContainerNotFoundError as e:
-            raise e
+        return self._perform_api_action(self.client.api.rename_container, self.Id, name=name)
 
-        return self.model_dump(mode='json', exclude={"client"})
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__}: {self.short_id}>"

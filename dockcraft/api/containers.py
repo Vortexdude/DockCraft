@@ -1,6 +1,6 @@
 from ..utils import logging_dec
 from dockcraft.exceptions import (ContainerNotFoundError,
-    InternalSeverError, ContainerAlreadyStopped,
+    InternalSeverError, ContainerAlreadyStopped, ContainerAlreadyStarted,
     ContainerNameAlreadyUsed, BadParameters, ContainerDeletionError)
 
 
@@ -33,7 +33,7 @@ class ContainerApiMixin(BaseApiMixin):
         return response['body']
 
     @logging_dec()
-    def create_container(self, image, command=None, **kwargs):
+    def create_container(self, image, command=None, hostname=None, user=None, volumes=None, name=None, **kwargs):
         params = {}
         if "name" in kwargs:
             params.update({"name": kwargs['name']})
@@ -45,6 +45,20 @@ class ContainerApiMixin(BaseApiMixin):
             return response['body']
         else:
             raise Exception(response['body'])
+
+    @logging_dec()
+    def start_container(self, container_id):
+        endpoint = f"/containers/{container_id}/start"
+        response = self.post(endpoint)
+        if response['Status-Code'] == "204":
+            return response['Status-Code'] # no need to do this
+
+        if str(response['Status-Code']) == "304":
+            raise ContainerAlreadyStarted(container_id)
+
+        else:
+            raise InternalSeverError()
+
 
     @logging_dec()
     def stop_container(self, container_id):
@@ -79,7 +93,6 @@ class ContainerApiMixin(BaseApiMixin):
     def delete_container(self, container_id):
         endpoint = f"/containers/{container_id}"
         response = self.delete(endpoint)
-        print(f"{response=}")
         if str(response['Status-Code']) == "204":
             return f"<Container {container_id[:12]}>"
 
