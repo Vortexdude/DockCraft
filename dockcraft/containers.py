@@ -7,7 +7,6 @@ class ContainerCollection(Collection):
 
     def list(self, all_containers=True) -> list[model]:
         response = self.client.api.containers(all_containers=all_containers)
-        self.client.logger.debug("listing all the containers")
         return [self.model.prepare_model(container, client=self.client) for container in response]
 
     def get(self, container_id):

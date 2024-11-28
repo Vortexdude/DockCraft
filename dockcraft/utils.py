@@ -1,6 +1,7 @@
 from functools import wraps
 import logging
 
+
 class CustomFormatter(logging.Formatter):
     GREEN = "\x1b[32m"
     BLUE = "\033[0;34m"
@@ -14,7 +15,7 @@ class CustomFormatter(logging.Formatter):
     WHITE = "\x1b[0m"
     RESET = "\x1b[0m"
 
-    custom_format = "%(logger_namespace)s %(asctime)s %(levelname)6s %(filename)10s:%(lineno)s - %(message)s"
+    custom_format = "%(logger_namespace)s %(asctime)s %(levelname)6s - %(message)s"
     time_format = "%d/%m/%Y %H:%M:%S"
 
     FORMATS = {
@@ -57,7 +58,7 @@ class CustomLogger:
         return self.logger
 
 
-def logging_dec(level="debug"):
+def logging_dec():
     def decorator(function):
         @wraps(function)
         def wrapper(self, *args, **kwargs):
@@ -69,18 +70,26 @@ def logging_dec(level="debug"):
             message = "Invoking "
 
             if "." in function.__qualname__:
-                message += f"method '{function.__qualname__}' "
+                message += f"method "
             else:
-                message += f"function '{function.__qualname__}' "
+                message += f"function "
+
+            message += f"{function.__module__}.{function.__qualname__} "
 
             logger.info(message)
 
             if logger.getEffectiveLevel() == 10:  # check for debug or info
                 pass
 
-            message += f"with args {args} and kwargs {kwargs}"
+            if args or kwargs:
+                if args and not kwargs:
+                    message += f"with args {args}"
+                if not args and kwargs:
+                    message += f"with kwargs {kwargs}"
+                if args and kwargs:
+                    message += f"with args {args} and kwargs {kwargs}"
 
-            logger.debug(message)
+                logger.debug(message)
             logger.debug(function.__doc__) if function.__doc__ else None
 
             result = function(self, *args, **kwargs)

@@ -8,7 +8,7 @@ if __name__ == "__main__":
     logger.debug("using logger_client")
 
     containers = cd.containers.list(all_containers=True)
-    # for container in containers:
-    #     container.start()
+    for container in containers:
+        container.stop()
     res = cd.containers.create("python", name="anything", command="sleep infinity")
     print(res)

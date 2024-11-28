@@ -24,7 +24,7 @@ class ContainerApiMixin(BaseApiMixin):
 
     @logging_dec()
     def containers(self, all_containers=True):
-        """fetching all the containers using /containers/json endpoint"""
+        """fetching all the containers using 'GET' '/containers/json' """
 
         all_containers = "true" if all_containers else "false"
 
@@ -38,7 +38,8 @@ class ContainerApiMixin(BaseApiMixin):
 
     @logging_dec()
     def create_container(self, image, name=None, command=None, hostname=None, user=None, platform=None):
-        f"""creating the container with given args"""
+        """creating the container with 'POST' '/containers/create' """
+
         params = {}
         docker_config = {}
         if name:
@@ -72,6 +73,8 @@ class ContainerApiMixin(BaseApiMixin):
 
     @logging_dec()
     def start_container(self, container_id):
+        """Starting the container using 'POST' '/containers/{container_id}/start' """
+
         endpoint = f"/containers/{container_id}/start"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
@@ -84,9 +87,10 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-
     @logging_dec()
     def stop_container(self, container_id):
+        """Stopping the containers 'POST' '/containers/{container_id}/stop' """
+
         endpoint = f"/containers/{container_id}/stop"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
@@ -103,6 +107,8 @@ class ContainerApiMixin(BaseApiMixin):
 
     @logging_dec()
     def restart_container(self, container_id):
+        """Restarting the containers 'POST' '/containers/{container_id}/restart' """
+
         endpoint = f"/containers/{container_id}/restart"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
@@ -116,6 +122,8 @@ class ContainerApiMixin(BaseApiMixin):
 
     @logging_dec()
     def delete_container(self, container_id):
+        """Deleting the container using 'DELETE' '/containers/{container_id}' """
+
         endpoint = f"/containers/{container_id}"
         response = self.model.format(self.delete(endpoint))
         if response.status_code == 204:
@@ -135,6 +143,8 @@ class ContainerApiMixin(BaseApiMixin):
 
     @logging_dec()
     def rename_container(self, container_id, name):
+        """Renaming the container using 'POST' '/containers/{container_id}/rename' """
+
         endpoint = f"/containers/{container_id}/rename"
         params = {"name": name}
         response = self.model.format(self.post(endpoint, query_param=params))

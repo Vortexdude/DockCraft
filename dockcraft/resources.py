@@ -14,3 +14,10 @@ class Model(BaseModel):
     @property
     def short_id(cls):
         return cls.Id[:12]
+
+    @classmethod
+    def prepare_model(cls, data, client=None):
+        if client:
+            data['client'] = client
+
+        return cls.model_validate(data)
