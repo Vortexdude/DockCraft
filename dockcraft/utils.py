@@ -1,7 +1,20 @@
 import logging
-from functools import wraps
 from shlex import split
+from functools import wraps
 
+banner = """ \n
+ _____                                                                            _____ 
+( ___ )                                                                          ( ___ )
+ |   |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|   | 
+ |   | ██████╗  ██████╗  ██████╗██╗  ██╗ ██████╗██████╗  █████╗ ███████╗████████╗ |   | 
+ |   | ██╔══██╗██╔═══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗██╔══██╗██╔════╝╚══██╔══╝ |   | 
+ |   | ██║  ██║██║   ██║██║     █████╔╝ ██║     ██████╔╝███████║█████╗     ██║    |   | 
+ |   | ██║  ██║██║   ██║██║     ██╔═██╗ ██║     ██╔══██╗██╔══██║██╔══╝     ██║    |   | 
+ |   | ██████╔╝╚██████╔╝╚██████╗██║  ██╗╚██████╗██║  ██║██║  ██║██║        ██║    |   | 
+ |   | ╚═════╝  ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝        ╚═╝    |   | 
+ |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|___| 
+(_____)                                                                          (_____)
+\n"""
 
 class CustomFormatter(logging.Formatter):
     GREEN = "\x1b[32m"
@@ -63,10 +76,13 @@ def logging_dec():
     def decorator(function):
         @wraps(function)
         def wrapper(self, *args, **kwargs):
-            try:
+            # logger =
+            if hasattr(self, "logger"):
                 logger = self.logger
-            except AttributeError:
+            elif hasattr(self, "client"):
                 logger = self.client.api.logger
+            else:
+                return function(self, *args, **kwargs)
 
             message = "Invoking "
 
