@@ -17,7 +17,7 @@ class CustomFormatter(logging.Formatter):
     RESET = "\x1b[0m"
 
     custom_format = "%(logger_namespace)s %(asctime)s %(levelname)6s - %(message)s"
-    time_format = "%d/%m/%Y %H:%M:%S"
+    time_format = "%Y-%m-%dT%H:%M:%S"
 
     FORMATS = {
         logging.DEBUG: BLUE + custom_format + RESET,
