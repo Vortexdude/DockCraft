@@ -1,24 +1,13 @@
-from ..utils import logging_dec
-from dockcraft.exceptions import (ContainerNotFoundError, ContainerAlreadyExists,
-    InternalSeverError, ContainerAlreadyStopped, ContainerAlreadyStarted,
-    ContainerNameAlreadyUsed, BadParameters, ContainerDeletionError)
-from dockcraft.models.http_res import HttpRes
+from dockcraft.exceptions import (BadParameters, ContainerAlreadyExists,
+                                  ContainerAlreadyStarted,
+                                  ContainerAlreadyStopped,
+                                  ContainerDeletionError,
+                                  ContainerNameAlreadyUsed,
+                                  ContainerNotFoundError, InternalSeverError)
+# local import
+from ..api import BaseApiMixin
+from ..utils import container_dict, logging_dec
 
-
-class BaseApiMixin(object):
-
-    def get(self, endpoint, *args, **kwargs):
-        raise NotImplementedError()
-
-    def post(self, endpoint, *args, **kwargs):
-        raise NotImplementedError()
-
-    def delete(self, endpoint, *args, **kwargs):
-        raise NotImplementedError()
-
-    @property
-    def model(self):
-        return HttpRes
 
 class ContainerApiMixin(BaseApiMixin):
 
@@ -41,27 +30,13 @@ class ContainerApiMixin(BaseApiMixin):
         """creating the container with 'POST' '/containers/create' """
 
         params = {}
-        docker_config = {}
         if name:
             params['name'] = name
         if platform:
             params['platform'] = platform
 
         endpoint = "/containers/create"
-        docker_config['image'] = image
-
-        if hostname:
-            docker_config['Hostname'] = hostname
-        if user:
-            docker_config['User'] = user
-        if command:
-            if isinstance(command, str):
-                docker_config['Cmd'] = command.split(" ")
-            elif isinstance(command, list):
-                docker_config['Cmd'] = command
-        if platform:
-            docker_config['Cmd'] = command
-
+        docker_config = container_dict(image, command=command, hostname=hostname, user=user)
         response = self.model.format(self.post(endpoint, payload=docker_config, query_param=params))
 
         if response.status_code == 201:

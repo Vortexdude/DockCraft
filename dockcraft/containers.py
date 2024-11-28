@@ -1,5 +1,5 @@
-from .resources import Collection
 from .models.containers import Container
+from .resources import Collection
 
 
 class ContainerCollection(Collection):

@@ -1,5 +1,6 @@
-from functools import wraps
 import logging
+from functools import wraps
+from shlex import split
 
 
 class CustomFormatter(logging.Formatter):
@@ -75,7 +76,6 @@ def logging_dec():
                 message += f"function "
 
             message += f"{function.__module__}.{function.__qualname__} "
-
             logger.info(message)
 
             if logger.getEffectiveLevel() == 10:  # check for debug or info
@@ -96,3 +96,20 @@ def logging_dec():
             return result
         return wrapper
     return decorator
+
+
+def container_dict(image, command=None, hostname=None, user=None, ports=None) -> dict:
+
+    docker_config = dict(image = image)
+
+    if hostname:
+        docker_config['Hostname'] = hostname
+    if user:
+        docker_config['User'] = user
+    if command:
+        if isinstance(command, str):
+            docker_config['Cmd'] = split(command)
+        elif isinstance(command, list):
+            docker_config['Cmd'] = command
+
+    return docker_config

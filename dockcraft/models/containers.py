@@ -1,7 +1,9 @@
+from dockcraft.exceptions import (BadParameters, ContainerAlreadyStarted,
+                                  ContainerAlreadyStopped,
+                                  ContainerDeletionError,
+                                  ContainerNameAlreadyUsed,
+                                  ContainerNotFoundError)
 from dockcraft.resources import Model
-from dockcraft.exceptions import (ContainerNameAlreadyUsed, BadParameters, ContainerDeletionError,
-                                  ContainerAlreadyStopped,ContainerNotFoundError, ContainerAlreadyStarted)
-
 from dockcraft.utils import logging_dec
 
 
