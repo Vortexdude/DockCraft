@@ -1,5 +1,4 @@
 import logging
-from pyexpat.errors import messages
 from shlex import split
 from functools import wraps
 
@@ -143,7 +142,7 @@ def _log_message_metadata(method, args, kwargs) -> str:
 class ExtraMeta(type):
     def __new__(cls, future_class_name, future_class_parent, future_class_attr):
         for attr, v in future_class_attr.items():
-            if callable(v) and not attr.startswith("_"):
+            if callable(v) and not attr.startswith("_") and attr != "model":
                 future_class_attr[attr] = cls.log_wrapper(attr, v)
 
         return super().__new__(cls, future_class_name, future_class_parent, future_class_attr)

@@ -1,8 +1,8 @@
 from .models.containers import Container
 from .resources import Collection
+from .utils import ExtraMeta
 
-
-class ContainerCollection(Collection):
+class ContainerCollection(Collection, metaclass=ExtraMeta):
     model = Container
 
     def list(self, all_containers=True) -> list[model]:

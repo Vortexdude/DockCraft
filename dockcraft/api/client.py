@@ -12,13 +12,16 @@ class APIClient(HttpReq, ContainerApiMixin):
 
 
     def get(self, url, /, *args, **kwargs):
-        """basic api get request"""
+        """Requesting GET api"""
+
         return self._get(url, *args, **kwargs)
 
     def post(self, url, /, *args, **kwargs):
-        """basic api post request"""
+        """Requesting POST api"""
+
         return self._post(url, *args, **kwargs)
 
     def delete(self, url, /, *args, **kwargs):
-        """basic api delete request"""
+        """Requesting DELETE api"""
+
         return self._delete(url, *args, **kwargs)
