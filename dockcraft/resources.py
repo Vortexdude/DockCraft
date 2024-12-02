@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from rich.console import Console
+from .settings import is_debug, logger
 
 
 class Collection:
@@ -6,6 +8,12 @@ class Collection:
 
     def __init__(self, client):
         self.client = client
+        self.console = Console()
+        self.logger = logger
+
+    @property
+    def is_debug(self):
+        return is_debug()
 
 class Model(BaseModel):
     Id: str

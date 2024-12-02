@@ -1,14 +1,8 @@
 from dockcraft.client import DockerClient
-from dockcraft.settings import logger
 
 
 if __name__ == "__main__":
-    client = DockerClient()
-    cd = client.from_env(logger=logger)
-    logger.debug("using logger_client")
+    api = DockerClient.from_env()
 
-    containers = cd.containers.list(all_containers=True)
-    for container in containers:
-        container.stop()
-    res = cd.containers.create("python", name="anything", command="sleep infinity")
-    print(res)
+    containers = api.containers.list(all_containers=True)
+    res = api.containers.create("python", name="anything", command="sleep infinity")

@@ -1,6 +1,6 @@
 import logging
-from functools import wraps
 from shlex import split
+from functools import wraps
 
 
 class CustomFormatter(logging.Formatter):
@@ -63,10 +63,13 @@ def logging_dec():
     def decorator(function):
         @wraps(function)
         def wrapper(self, *args, **kwargs):
-            try:
+            # logger =
+            if hasattr(self, "logger"):
                 logger = self.logger
-            except AttributeError:
+            elif hasattr(self, "client"):
                 logger = self.client.api.logger
+            else:
+                return function(self, *args, **kwargs)
 
             message = "Invoking "
 
@@ -96,6 +99,56 @@ def logging_dec():
             return result
         return wrapper
     return decorator
+
+def _extract_logger(self):
+    if hasattr(self, "logger"):
+        return self.logger
+    elif hasattr(self, "client"):
+        return self.client.api.logger
+    else:
+        return
+
+def _log_message_metadata(method, args, kwargs) -> str:
+    message = "Invoking "
+    if "." in method.__qualname__:
+        message += f"method "
+    else:
+        message += f"function "
+    message += f"{method.__module__}.{method.__qualname__} "
+
+    if args or kwargs:
+        if args and not kwargs:
+            message += f"with args {args}"
+        if not args and kwargs:
+            message += f"with kwargs {kwargs}"
+        if args and kwargs:
+            message += f"with args {args} and kwargs {kwargs}"
+        return message
+    return message
+
+class ExtraMeta(type):
+    def __new__(cls, future_class_name, future_class_parent, future_class_attr):
+        for attr, v in future_class_attr.items():
+            if callable(v) and not attr.startswith("_") and attr != "model":
+                future_class_attr[attr] = cls.log_wrapper(attr, v)
+
+        return super().__new__(cls, future_class_name, future_class_parent, future_class_attr)
+
+    @staticmethod
+    def log_wrapper(method_name, method):
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            logger = _extract_logger(self) if _extract_logger(self) else None
+            if not logger:
+                return method(self, *args, **kwargs) # invoke the actual method
+
+            message = _log_message_metadata(method, args, kwargs)
+            logger.debug(method.__doc__) if method.__doc__ else None
+            result = method(self, *args, **kwargs) # invoke the actual method
+            logger.debug(message)
+            return result
+        return wrapper
+
 
 
 def container_dict(image, command=None, hostname=None, user=None, ports=None) -> dict:

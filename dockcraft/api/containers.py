@@ -6,12 +6,11 @@ from dockcraft.exceptions import (BadParameters, ContainerAlreadyExists,
                                   ContainerNotFoundError, InternalSeverError)
 # local import
 from ..api import BaseApiMixin
-from ..utils import container_dict, logging_dec
+from ..utils import container_dict, ExtraMeta
 
 
-class ContainerApiMixin(BaseApiMixin):
+class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
 
-    @logging_dec()
     def containers(self, all_containers=True):
         """fetching all the containers using 'GET' '/containers/json' """
 
@@ -25,7 +24,6 @@ class ContainerApiMixin(BaseApiMixin):
 
         return response.body
 
-    @logging_dec()
     def create_container(self, image, name=None, command=None, hostname=None, user=None, platform=None):
         """creating the container with 'POST' '/containers/create' """
 
@@ -46,7 +44,6 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging_dec()
     def start_container(self, container_id):
         """Starting the container using 'POST' '/containers/{container_id}/start' """
 
@@ -54,7 +51,7 @@ class ContainerApiMixin(BaseApiMixin):
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
             self.logger.debug("container started successfully")
-            return response.status_code # no need to do this
+            return response.status_code  # no need to do this
 
         elif response.status_code == 304:
             raise ContainerAlreadyStarted(container_id)
@@ -62,7 +59,6 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging_dec()
     def stop_container(self, container_id):
         """Stopping the containers 'POST' '/containers/{container_id}/stop' """
 
@@ -80,7 +76,6 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging_dec()
     def restart_container(self, container_id):
         """Restarting the containers 'POST' '/containers/{container_id}/restart' """
 
@@ -95,7 +90,6 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging_dec()
     def delete_container(self, container_id):
         """Deleting the container using 'DELETE' '/containers/{container_id}' """
 
@@ -116,7 +110,6 @@ class ContainerApiMixin(BaseApiMixin):
         else:
             raise InternalSeverError()
 
-    @logging_dec()
     def rename_container(self, container_id, name):
         """Renaming the container using 'POST' '/containers/{container_id}/rename' """
 
