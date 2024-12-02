@@ -44,7 +44,17 @@ class ContainerDeletionError(ContainerException):
     def __init__(self, container):
         super().__init__(container)
 
+class ContainerAlreadyStarted(ContainerException):
+    message = "Container {} is already in running state"
+    def __init__(self, container):
+        super().__init__(container)
+
 class BadParameters(BaseException):
     def __init__(self):
         self.message = "Bad Params"
+        super().__init__()
+
+class ContainerAlreadyExists(BaseException):
+    def __init__(self, message):
+        self.message = message
         super().__init__()

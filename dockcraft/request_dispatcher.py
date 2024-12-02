@@ -1,9 +1,14 @@
-import socket
+from dockcraft.utils import ExtraMeta
 import json
+import socket
 
 
-class BaseHttpReq(object):
+
+class BaseHttpReq(object, metaclass=ExtraMeta):
     def __init__(self, host: None | str = None, socket_file: None | str = None, *args, **kwargs):
+        if "logger" in kwargs:
+            self.logger = kwargs['logger']
+
         self._line_end = "\r\n"
         self.host = host or "localhost"
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
