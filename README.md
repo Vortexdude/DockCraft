@@ -1,6 +1,6 @@
 # DockCraft
 Emphasizing crafting Docker solutions.
-: Branch development
+: Branch Master
 
 ##### Common imports
 ```python
