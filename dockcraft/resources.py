@@ -15,6 +15,12 @@ class Collection:
     def is_debug(self):
         return is_debug()
 
+    def _dispatcher(self, response):
+        if self.is_debug:
+            self.logger.debug(response)
+        return response
+
+
 class Model(BaseModel):
     Id: str
     client: object = None

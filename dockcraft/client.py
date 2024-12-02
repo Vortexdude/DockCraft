@@ -1,5 +1,5 @@
 from .api.client import APIClient
-from .containers import ContainerCollection
+from .models.containers import ContainerCollection
 
 
 class DockerClient:

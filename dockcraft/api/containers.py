@@ -50,8 +50,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         endpoint = f"/containers/{container_id}/start"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
-            self.logger.debug("container started successfully")
-            return response.status_code  # no need to do this
+            return "Container Created Successfully"
 
         elif response.status_code == 304:
             raise ContainerAlreadyStarted(container_id)
@@ -91,7 +90,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
             raise InternalSeverError()
 
     def delete_container(self, container_id):
-        """Deleting the container using 'DELETE' '/containers/{container_id}' """
+        """Remove a container. Similar to the 'docker rm' command. => DELETE /containers/{container_id} """
 
         endpoint = f"/containers/{container_id}"
         response = self.model.format(self.delete(endpoint))
@@ -125,5 +124,18 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         elif response.status_code == 400:
             raise ContainerNameAlreadyUsed(container_id[:12])
 
+        else:
+            raise InternalSeverError()
+
+    def prune_containers(self, filters:dict=None):
+        """Delete stopped containers similar to 'docker container prune' => POST /containers/prune."""
+
+        endpoint = "/containers/prune"
+        params = {}
+        if filters:
+            params['filters'] = filters
+        response = self.model.format(self.post(endpoint, query_param=params))
+        if response.status_code == 200:
+            return response.body
         else:
             raise InternalSeverError()
