@@ -2,19 +2,6 @@ import logging
 from shlex import split
 from functools import wraps
 
-banner = """ \n
- _____                                                                            _____ 
-( ___ )                                                                          ( ___ )
- |   |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|   | 
- |   | ██████╗  ██████╗  ██████╗██╗  ██╗ ██████╗██████╗  █████╗ ███████╗████████╗ |   | 
- |   | ██╔══██╗██╔═══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗██╔══██╗██╔════╝╚══██╔══╝ |   | 
- |   | ██║  ██║██║   ██║██║     █████╔╝ ██║     ██████╔╝███████║█████╗     ██║    |   | 
- |   | ██║  ██║██║   ██║██║     ██╔═██╗ ██║     ██╔══██╗██╔══██║██╔══╝     ██║    |   | 
- |   | ██████╔╝╚██████╔╝╚██████╗██║  ██╗╚██████╗██║  ██║██║  ██║██║        ██║    |   | 
- |   | ╚═════╝  ╚═════╝  ╚═════╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝        ╚═╝    |   | 
- |___|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|___| 
-(_____)                                                                          (_____)
-\n"""
 
 class CustomFormatter(logging.Formatter):
     GREEN = "\x1b[32m"
@@ -153,13 +140,13 @@ class ExtraMeta(type):
         def wrapper(self, *args, **kwargs):
             logger = _extract_logger(self) if _extract_logger(self) else None
             if not logger:
-                return method(self, *args, **kwargs)
+                return method(self, *args, **kwargs) # invoke the actual method
 
             message = _log_message_metadata(method, args, kwargs)
-            logger.info(message)
             logger.debug(method.__doc__) if method.__doc__ else None
-
-            return method(self, *args, **kwargs)
+            result = method(self, *args, **kwargs) # invoke the actual method
+            logger.debug(message)
+            return result
         return wrapper
 
 
