@@ -144,8 +144,8 @@ class ExtraMeta(type):
 
             message = _log_message_metadata(method, args, kwargs)
             logger.debug(method.__doc__) if method.__doc__ else None
-            result = method(self, *args, **kwargs) # invoke the actual method
             logger.debug(message)
+            result = method(self, *args, **kwargs) # invoke the actual method
             return result
         return wrapper
 

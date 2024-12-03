@@ -5,7 +5,7 @@ from dockcraft.exceptions import (BadParameters, ContainerAlreadyStarted,
                                   ContainerNotFoundError)
 from dockcraft.resources import Model, Collection
 from dockcraft.utils import ExtraMeta
-
+from dockcraft.settings import logger
 
 class Container(Model):
 
@@ -56,6 +56,8 @@ class ContainerCollection(Collection, metaclass=ExtraMeta):
     def list(self, all_containers=True) -> list[model]:
         response = self.client.api.containers(all_containers=all_containers)
         containers = [self.model.prepare_model(container, client=self.client) for container in response]
+        if not containers:
+            logger.debug("No running container found")
         return self._dispatcher(containers)
 
     def get(self, container_id) -> model:

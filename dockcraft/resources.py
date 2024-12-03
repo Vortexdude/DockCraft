@@ -17,7 +17,13 @@ class Collection:
 
     def _dispatcher(self, response):
         if self.is_debug:
-            self.logger.debug(response)
+            if "ContainersDeleted" in response:
+                if response['ContainersDeleted']:
+                    [self.logger.debug(f"Container deleted '{con[:12]}'") for con in response['ContainersDeleted']]
+                else:
+                    self.logger.debug("No Containers are deleted")
+            else:
+                self.logger.debug(f"{response=}")
         return response
 
 
