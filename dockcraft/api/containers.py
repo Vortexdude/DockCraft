@@ -24,6 +24,19 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
 
         return response.body
 
+    def inspect_container(self, container_id):
+        """Inspect the container similar to 'docker inspect {Id} /containers/{id}/json' """
+
+        endpoint = f"/containers/{container_id}/json"
+        response = self.model.format(self.get(endpoint))
+        if response.status_code == 200:
+            return response.body
+        elif response.status_code == 404:
+            raise ContainerNotFoundError(container_id)
+        else:
+            raise InternalSeverError()
+
+
     def create_container(self, image, name=None, command=None, hostname=None, user=None, platform=None):
         """creating the container with 'POST' '/containers/create' """
 
@@ -50,7 +63,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         endpoint = f"/containers/{container_id}/start"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
-            return "Container Created Successfully"
+            return "Container Created Successfully" # this goes to log
 
         elif response.status_code == 304:
             raise ContainerAlreadyStarted(container_id)
@@ -64,7 +77,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         endpoint = f"/containers/{container_id}/stop"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
-            return response.body
+            return response.body # This to filter by the model itself
 
         elif response.status_code == 304:
             raise ContainerAlreadyStopped(container_id)
@@ -81,7 +94,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         endpoint = f"/containers/{container_id}/restart"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
-            return response.body
+            return response.body # This to filter by the model itself
 
         elif response.status_code == 404:
             raise ContainerNotFoundError(container_id)
@@ -95,7 +108,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         endpoint = f"/containers/{container_id}"
         response = self.model.format(self.delete(endpoint))
         if response.status_code == 204:
-            return f"<Container {container_id[:12]}>"
+            return response.body # This to filter by the model itself
 
         elif response.status_code == 400:
             raise BadParameters()
@@ -116,7 +129,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         params = {"name": name}
         response = self.model.format(self.post(endpoint, query_param=params))
         if response.status_code == 204:
-            return response.body
+            return response.body # This to filter by the model itself
 
         elif response.status_code == 404:
             raise ContainerNotFoundError(container_id)
@@ -136,6 +149,6 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
             params['filters'] = filters
         response = self.model.format(self.post(endpoint, query_param=params))
         if response.status_code == 200:
-            return response.body
+            return response.body # This to filter by the model itself
         else:
             raise InternalSeverError()
