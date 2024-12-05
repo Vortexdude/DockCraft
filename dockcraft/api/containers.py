@@ -24,7 +24,20 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
 
         return response.body
 
-    def create_container(self, image, name=None, command=None, hostname=None, user=None, platform=None):
+    def inspect_container(self, container_id):
+        """Inspect the container similar to 'docker inspect {Id} /containers/{id}/json' """
+
+        endpoint = f"/containers/{container_id}/json"
+        response = self.model.format(self.get(endpoint))
+        if response.status_code == 200:
+            return response.body
+        elif response.status_code == 404:
+            raise ContainerNotFoundError(container_id)
+        else:
+            raise InternalSeverError()
+
+
+    def create_container(self, image, name=None, command=None, hostname=None, user=None, platform=None, ports=None):
         """creating the container with 'POST' '/containers/create' """
 
         params = {}
@@ -34,7 +47,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
             params['platform'] = platform
 
         endpoint = "/containers/create"
-        docker_config = container_dict(image, command=command, hostname=hostname, user=user)
+        docker_config = container_dict(image, command=command, hostname=hostname, user=user, ports=ports)
         response = self.model.format(self.post(endpoint, payload=docker_config, query_param=params))
 
         if response.status_code == 201:
@@ -50,8 +63,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         endpoint = f"/containers/{container_id}/start"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
-            self.logger.debug("container started successfully")
-            return response.status_code  # no need to do this
+            return "Container Created Successfully" # this goes to log
 
         elif response.status_code == 304:
             raise ContainerAlreadyStarted(container_id)
@@ -65,7 +77,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         endpoint = f"/containers/{container_id}/stop"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
-            return response.body
+            return response.body # This to filter by the model itself
 
         elif response.status_code == 304:
             raise ContainerAlreadyStopped(container_id)
@@ -82,7 +94,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         endpoint = f"/containers/{container_id}/restart"
         response = self.model.format(self.post(endpoint))
         if response.status_code == 204:
-            return response.body
+            return response.body # This to filter by the model itself
 
         elif response.status_code == 404:
             raise ContainerNotFoundError(container_id)
@@ -91,12 +103,12 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
             raise InternalSeverError()
 
     def delete_container(self, container_id):
-        """Deleting the container using 'DELETE' '/containers/{container_id}' """
+        """Remove a container. Similar to the 'docker rm' command. => DELETE /containers/{container_id} """
 
         endpoint = f"/containers/{container_id}"
         response = self.model.format(self.delete(endpoint))
         if response.status_code == 204:
-            return f"<Container {container_id[:12]}>"
+            return response.body # This to filter by the model itself
 
         elif response.status_code == 400:
             raise BadParameters()
@@ -117,7 +129,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         params = {"name": name}
         response = self.model.format(self.post(endpoint, query_param=params))
         if response.status_code == 204:
-            return response.body
+            return response.body # This to filter by the model itself
 
         elif response.status_code == 404:
             raise ContainerNotFoundError(container_id)
@@ -125,5 +137,18 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
         elif response.status_code == 400:
             raise ContainerNameAlreadyUsed(container_id[:12])
 
+        else:
+            raise InternalSeverError()
+
+    def prune_containers(self, filters:dict=None):
+        """Delete stopped containers similar to 'docker container prune' => POST /containers/prune."""
+
+        endpoint = "/containers/prune"
+        params = {}
+        if filters:
+            params['filters'] = filters
+        response = self.model.format(self.post(endpoint, query_param=params))
+        if response.status_code == 200:
+            return response.body # This to filter by the model itself
         else:
             raise InternalSeverError()
