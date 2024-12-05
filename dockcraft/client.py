@@ -1,5 +1,6 @@
 from .api.client import APIClient
 from .models.containers import ContainerCollection
+from .models.images import ImageCollection
 
 
 class DockerClient:
@@ -17,3 +18,7 @@ class DockerClient:
     @property
     def containers(self, *args, **kwargs):
         return ContainerCollection(client=self)
+
+    @property
+    def images(self, *args, **kwargs):
+        return ImageCollection(client=self)

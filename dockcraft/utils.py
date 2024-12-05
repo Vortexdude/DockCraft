@@ -97,8 +97,11 @@ def logging_dec():
 
             result = function(self, *args, **kwargs)
             return result
+
         return wrapper
+
     return decorator
+
 
 def _extract_logger(self):
     if hasattr(self, "logger"):
@@ -107,6 +110,7 @@ def _extract_logger(self):
         return self.client.api.logger
     else:
         return
+
 
 def _log_message_metadata(method, args, kwargs) -> str:
     message = "Invoking "
@@ -126,6 +130,7 @@ def _log_message_metadata(method, args, kwargs) -> str:
         return message
     return message
 
+
 class ExtraMeta(type):
     def __new__(cls, future_class_name, future_class_parent, future_class_attr):
         for attr, v in future_class_attr.items():
@@ -140,20 +145,19 @@ class ExtraMeta(type):
         def wrapper(self, *args, **kwargs):
             logger = _extract_logger(self) if _extract_logger(self) else None
             if not logger:
-                return method(self, *args, **kwargs) # invoke the actual method
+                return method(self, *args, **kwargs)  # invoke the actual method
 
             message = _log_message_metadata(method, args, kwargs)
             logger.debug(method.__doc__) if method.__doc__ else None
             logger.debug(message)
-            result = method(self, *args, **kwargs) # invoke the actual method
+            result = method(self, *args, **kwargs)  # invoke the actual method
             return result
+
         return wrapper
 
 
-
-def container_dict(image, command=None, hostname=None, user=None, ports=None) -> dict:
-
-    docker_config = dict(image = image)
+def container_dict(image, command=None, hostname=None, user=None, ports=None, mounts=None) -> dict:
+    docker_config = dict(image=image)
 
     if hostname:
         docker_config['Hostname'] = hostname
@@ -164,5 +168,20 @@ def container_dict(image, command=None, hostname=None, user=None, ports=None) ->
             docker_config['Cmd'] = split(command)
         elif isinstance(command, list):
             docker_config['Cmd'] = command
+
+    def host_config():
+        _tmp = {}
+        for container, local in ports.items():
+            _tmp = {
+                "PortBindings": {
+                    container: [{
+                        "HostPort": local
+                    }]
+                }
+            }
+
+        return _tmp
+
+    docker_config['HostConfig'] = host_config() if ports or mounts else None
 
     return docker_config

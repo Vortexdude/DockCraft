@@ -37,7 +37,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
             raise InternalSeverError()
 
 
-    def create_container(self, image, name=None, command=None, hostname=None, user=None, platform=None):
+    def create_container(self, image, name=None, command=None, hostname=None, user=None, platform=None, ports=None):
         """creating the container with 'POST' '/containers/create' """
 
         params = {}
@@ -47,7 +47,7 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
             params['platform'] = platform
 
         endpoint = "/containers/create"
-        docker_config = container_dict(image, command=command, hostname=hostname, user=user)
+        docker_config = container_dict(image, command=command, hostname=hostname, user=user, ports=ports)
         response = self.model.format(self.post(endpoint, payload=docker_config, query_param=params))
 
         if response.status_code == 201:
