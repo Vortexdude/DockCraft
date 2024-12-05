@@ -7,47 +7,84 @@ from dockcraft.resources import Model, Collection
 from dockcraft.utils import ExtraMeta
 from dockcraft.settings import logger
 
+
 class Container(Model):
 
-    def _perform_api_action(self, action, *args, **kwargs):
+    @property
+    def name(self):
+        if self.attrs.get('Names'):
+            return self.attrs['Names'][0].lstrip("/")
+        elif self.attrs.get("Name"):
+            return self.attrs.get("Name").lstrip("/")
+
+
+    @property
+    def image(self):
+        image_id = self.attrs.get("ImageId", self.attrs['Image'])
+        if not image_id:
+            return None
+        # return self.client.images.get(image_id.split(":")[1])
+        return image_id
+
+    @property
+    def status(self):
+        """
+        The status of the container. For example, ``running``, or ``exited``.
+        """
+        if isinstance(self.attrs['State'], dict):
+            return self.attrs['State']['Status']
+        return self.attrs['State']
+
+    @property
+    def ports(self):
+        """
+        The ports that the container exposes as a dictionary.
+        """
+        return self.attrs.get('NetworkSettings', {}).get('Ports', {})
+
+    def _reload(self):
+        updated_args = self.client.api.inspect_container(self.id)
+        self.attrs.update(updated_args)
+
+    @staticmethod
+    def _perform_api_action(action, *args, **kwargs):
         try:
-            action(*args, **kwargs)
+            return action(*args, **kwargs)
         except (ContainerAlreadyStarted, ContainerAlreadyStopped, ContainerNameAlreadyUsed, BadParameters) as e:
             return e.message
         except (ContainerNotFoundError, ContainerDeletionError) as e:
             raise e
         except Exception as e:
             raise e
-        return self.model_dump(mode='json', exclude={"client"})
 
     def start(self):
-        return self._perform_api_action(self.client.api.start_container, self.Id)
+        self._perform_api_action(self.client.api.start_container, self.id)
+        self._reload()
+        return self
 
 
     def stop(self):
-        return self._perform_api_action(self.client.api.stop_container, self.Id)
+        self._perform_api_action(self.client.api.stop_container, self.id)
+        self._reload()
+        return self
 
 
     def restart(self):
-        return self._perform_api_action(self.client.api.restart_container, self.Id)
+        self._perform_api_action(self.client.api.restart_container, self.id)
+        self._reload()
+        return self
 
 
     def delete(self):
-        return self._perform_api_action(self.client.api.delete_container, self.Id)
+        self._perform_api_action(self.client.api.delete_container, self.id)
+        self._reload()
+        return self
 
 
     def rename(self, name):
-        return self._perform_api_action(self.client.api.rename_container, self.Id, name=name)
-
-
-    def __str__(self) -> str:
-        return f"<{self.__class__.__name__}: {self.short_id}>"
-
-    def __call__(self, *args, **kwargs):
-        return f"You should not call the {self.__class__.__name__} directly"
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__}: {self.short_id}>"
+        self._perform_api_action(self.client.api.rename_container, self.id, name=name)
+        self._reload()
+        return self
 
 
 class ContainerCollection(Collection, metaclass=ExtraMeta):
@@ -55,20 +92,19 @@ class ContainerCollection(Collection, metaclass=ExtraMeta):
 
     def list(self, all_containers=True) -> list[model]:
         response = self.client.api.containers(all_containers=all_containers)
-        containers = [self.model.prepare_model(container, client=self.client) for container in response]
+        containers = [self.model.prepare_model(attrs=container, client=self.client) for container in response]
         if not containers:
             logger.debug("No running container found")
         return self._dispatcher(containers)
 
     def get(self, container_id) -> model:
-        response = self.client.api.get_container(container_id)
-        container = self.model.prepare_model(response, client=self.client)
+        response = self.client.api.inspect_container(container_id)
+        container = self.model.prepare_model(attrs=response, client=self.client)
         return self._dispatcher(container)
 
     def create(self, image, command=None, **kwargs) -> model:
         response = self.client.api.create_container(image, command=command, **kwargs)
-        container = self.model.prepare_model(response)
-        return self._dispatcher(container)
+        return self.get(response['Id'])
 
     def prune(self, filters: dict=None) -> None:
         response = self.client.api.prune_containers(filters=filters)
