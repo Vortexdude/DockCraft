@@ -1,8 +1,9 @@
 from ..request_dispatcher import HttpReq
 from .containers import ContainerApiMixin
+from ..api.images import ImageApiMixin
 
 
-class APIClient(HttpReq, ContainerApiMixin):
+class APIClient(HttpReq, ContainerApiMixin, ImageApiMixin):
     def __init__(self, *args, **kwargs):
         if "logger" in kwargs:
             self.logger = kwargs['logger']

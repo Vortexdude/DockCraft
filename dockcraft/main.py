@@ -5,8 +5,8 @@ if __name__ == "__main__":
     api = DockerClient.from_env()
 
     # container = api.containers.create("python", name="anything", command="sleep infinity", ports={"8080/tcp": "8081"})
-    container = api.containers.create("nginx", name="from_api", ports={"80/tcp": "8081"})
-    containers = api.containers.list(all_containers=True)
+    # container = api.containers.create("nginx", name="from_api", ports={"80/tcp": "8081"})
+    # containers = api.containers.list(all_containers=True)
     # for cont in containers:
     #     data = cont.rename("from-new-model")
     #     print(data)
@@ -18,3 +18,8 @@ if __name__ == "__main__":
     # ss = api.containers.prune()
 
     # ss = api.containers.rename(containers[0].Id, "newOne")
+    ss = api.images.list_images(all_images=True)
+    for image in ss:
+        print(image)
+    image = api.images.search_image("busybox")
+    print(image)

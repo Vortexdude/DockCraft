@@ -12,6 +12,7 @@ class BaseHttpReq(object, metaclass=ExtraMeta):
         self._line_end = "\r\n"
         self.host = host or "localhost"
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.socket.settimeout(20)
         self.connection_file = socket_file or "/var/run/docker.sock"
         self.__connect()
 

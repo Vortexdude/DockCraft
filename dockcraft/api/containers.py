@@ -14,10 +14,9 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
     def containers(self, all_containers=True):
         """fetching all the containers using 'GET' '/containers/json' """
 
-        all_containers = "true" if all_containers else "false"
-
-        endpoint = f"/containers/json?all={all_containers}"
-        response = self.model.format(self.get(endpoint))
+        params = {'all': "true" if all_containers else "false"}
+        endpoint = f"/containers/json"
+        response = self.model.format(self.get(endpoint, query_param=params))
 
         if response.status_code != 200:
             raise Exception(response.body)
@@ -35,7 +34,6 @@ class ContainerApiMixin(BaseApiMixin, metaclass=ExtraMeta):
             raise ContainerNotFoundError(container_id)
         else:
             raise InternalSeverError()
-
 
     def create_container(self, image, name=None, command=None, hostname=None, user=None, platform=None, ports=None):
         """creating the container with 'POST' '/containers/create' """

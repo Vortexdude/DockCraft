@@ -1,6 +1,12 @@
 import logging
 from shlex import split
 from functools import wraps
+from datetime import datetime
+
+
+def unix2dt(time: int, string="%Y-%m-%d %H:%M:%S"):
+    """To Convert UNIX datetime (int) to datetime.strftime"""
+    return datetime.fromtimestamp(time).strftime(string)
 
 
 class CustomFormatter(logging.Formatter):
