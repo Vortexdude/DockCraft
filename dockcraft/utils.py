@@ -191,4 +191,3 @@ def container_dict(image, command=None, hostname=None, user=None, ports=None, mo
     docker_config['HostConfig'] = host_config() if ports or mounts else None
 
     return docker_config
-
